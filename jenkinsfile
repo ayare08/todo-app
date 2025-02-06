@@ -14,17 +14,16 @@ pipeline {
             }
         }
 
-    stages {
-            stage('Trigger CodeBuild') {
-                steps {
-                    withCredentials([aws(credentialsId: 'aws-codebuild', region: "${env.AWS_REGION}")]) {
-                        script {
-                            sh 'aws codebuild start-build --project-name todo-app-build'
+                stage('Trigger CodeBuild') {
+                    steps {
+                        withCredentials([aws(credentialsId: 'aws-codebuild', region: "${env.AWS_REGION}")]) {
+                            script {
+                                sh 'aws codebuild start-build --project-name todo-app-build'
+                            }
                         }
                     }
                 }
-            }
-        }
+            
         
         stage('Install Dependencies') {
             steps {
