@@ -1,7 +1,9 @@
 pipeline {
     agent any
-environment {
-    AWS_DEFAULT_REGION = 'us-east-1'  // Adjust as necessary
+
+
+    environment {
+    AWS_DEFAULT_REGION = 'us-east-1'
     }
 
     stages {
@@ -10,15 +12,25 @@ environment {
                 git url: 'https://github.com/ayare08/todo-app.git', branch: 'main'
             }
         }
-    stage('Trigger AWS CodeBuild') {
-        steps {
-            withAWS(credentials: 'aws-codebuild') {
-                script {
-                    sh 'aws codebuild start-build --project-name todo-app-build'
+
+        stage('Trigger AWS CodeBuild') {
+            steps {
+                withCredentials([aws(credentialsId: 'aws-codebuild', region: 'us-east-1')]) {
+                    script {
+                        echo "Triggering AWS CodeBuild..."
+
+                        // Trigger AWS CodeBuild project using AWS CLI
+                        def buildResult = sh(script: 'aws codebuild start-build --project-name todo-app-build --query "build.id"', returnStdout: true).trim()
+
+                        if (buildResult) {
+                            echo "Build started successfully with ID: ${buildResult}"
+                        } else {
+                            error "Failed to trigger AWS CodeBuild"
+                        }
+                    }
                 }
             }
-        }
-    }
+
         
         stage('Install Dependencies') {
             steps {
