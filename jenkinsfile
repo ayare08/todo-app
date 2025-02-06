@@ -4,7 +4,6 @@ pipeline {
 
     environment {
         AWS_REGION = 'us-east-1'  // Set your AWS region here
-        AWS_CREDENTIALS = 'aws-codebuild'  // Jenkins credentials ID for AWS
     }
 
     stages {
@@ -14,15 +13,24 @@ pipeline {
             }
         }
 
-                stage('Trigger CodeBuild') {
+        stage('Trigger CodeBuild') {
                     steps {
-                        withCredentials([aws(credentialsId: 'aws-codebuild', region: "${env.AWS_REGION}")]) {
+                        withCredentials([[
+                            $class: 'AmazonWebServicesCredentialsBinding', 
+                            credentialsId: 'aws-codebuild', 
+                            accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                            secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                        ]]) {
                             script {
+                                // Set the AWS region
+                                sh "aws configure set region ${env.AWS_REGION}"
+                                // Trigger the CodeBuild project
                                 sh 'aws codebuild start-build --project-name todo-app-build'
                             }
                         }
                     }
                 }
+    
             
         
         stage('Install Dependencies') {
