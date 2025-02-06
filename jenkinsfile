@@ -3,7 +3,8 @@ pipeline {
 
 
     environment {
-    AWS_DEFAULT_REGION = 'us-east-1'
+        AWS_REGION = 'us-east-1'  // Set your AWS region here
+        AWS_CREDENTIALS = 'aws-codebuild'  // Jenkins credentials ID for AWS
     }
 
     stages {
@@ -13,19 +14,12 @@ pipeline {
             }
         }
 
-        stage('Trigger AWS CodeBuild') {
-            steps {
-                withCredentials([aws(credentialsId: 'aws-codebuild', region: 'us-east-1')]) {
-                    script {
-                        echo "Triggering AWS CodeBuild..."
-
-                        // Trigger AWS CodeBuild project using AWS CLI
-                        def buildResult = sh(script: 'aws codebuild start-build --project-name todo-app-build --query "build.id"', returnStdout: true).trim()
-
-                        if (buildResult) {
-                            echo "Build started successfully with ID: ${buildResult}"
-                        } else {
-                            error "Failed to trigger AWS CodeBuild"
+    stages {
+            stage('Trigger CodeBuild') {
+                steps {
+                    withCredentials([aws(credentialsId: 'aws-codebuild', region: "${env.AWS_REGION}")]) {
+                        script {
+                            sh 'aws codebuild start-build --project-name todo-app-build'
                         }
                     }
                 }
