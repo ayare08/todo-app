@@ -7,13 +7,15 @@ pipeline {
                 git url: 'https://github.com/ayare08/todo-app.git', branch: 'main'
             }
         }
-       stage('Trigger AWS CodeBuild') {
-            steps {
+    stage('Trigger AWS CodeBuild') {
+        steps {
+            withAWS(credentials: 'codebuild') {
                 script {
                     sh 'aws codebuild start-build --project-name todo-app-build'
                 }
             }
         }
+    }
         
         stage('Install Dependencies') {
             steps {
