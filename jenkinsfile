@@ -9,7 +9,7 @@ pipeline {
         }
     stage('Trigger AWS CodeBuild') {
         steps {
-            withAWS(credentials: 'codebuild') {
+            withAWS(credentials: 'aws-codebuild') {
                 script {
                     sh 'aws codebuild start-build --project-name todo-app-build'
                 }
