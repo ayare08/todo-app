@@ -13,6 +13,8 @@ pipeline {
                     sh 'aws codebuild start-build --project-name todo-app-build'
                 }
             }
+        }
+        
         stage('Install Dependencies') {
             steps {
                 sh 'npm install'
